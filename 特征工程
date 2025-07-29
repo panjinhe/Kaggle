@@ -1,0 +1,22 @@
+Magic Features
+My models have 300 features in the end. Most of these are commonly used, such like raw price, mid price, imbalance features, rolling features and historical target features.
+I will introduce some features really helpful and other teams didn't share yet.
+1 agg features based on seconds_in_bucket_group
+
+pl.when(pl.col('seconds_in_bucket') < 300).then(0).when(pl.col('seconds_in_bucket') < 480).then(1).otherwise(2).cast(pl.Float32).alias('seconds_in_bucket_group'),
+ *[(pl.col(col).first() / pl.col(col)).over(['date_id', 'seconds_in_bucket_group', 'stock_id']).cast(pl.Float32).alias('{}_group_first_ratio'.format(col)) for col in base_features],
+ *[(pl.col(col).rolling_mean(100, min_periods=1) / pl.col(col)).over(['date_id', 'seconds_in_bucket_group', 'stock_id']).cast(pl.Float32).alias('{}_group_expanding_mean{}'.format(col, 100)) for col in base_features]
+2 rank features grouped by seconds_in_bucket
+
+ *[(pl.col(col).mean() / pl.col(col)).over(['date_id', 'seconds_in_bucket']).cast(pl.Float32).alias('{}_seconds_in_bucket_group_mean_ratio'.format(col)) for col in base_features],
+ *[(pl.col(col).rank(descending=True,method='ordinal') / pl.col(col).count()).over(['date_id', 'seconds_in_bucket']).cast(pl.Float32).alias('{}_seconds_in_bucket_group_rank'.format(col)) for col in base_features],
+Feature Selection
+Feature selection is important because we have to avoid memory error issue and run as many rounds of online training as possible.
+I just choose top 300 features by CatBoost model's feature importance.
+
+Model
+Nothing to say about CatBoost as usual, just simply train and predict.
+GRU input tensor's shape is (batch_size, 55 time steps, dense_feature_dim), followed by 4 layers GRU, output tensor's shape is (batch_size, 55 time steps).
+Transformer input tensor's shape is (batch_size, 200 stocks, dense_feature_dim), followed by 4 layers transformer encoder layers, output tensor's shape is (batch_size, 200 stocks). A small trick that turns output into zero mean is helpful.
+out = out - out.mean(1, keepdim=True)
+4 sample weight

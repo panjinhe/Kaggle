@@ -1,0 +1,58 @@
+# Python 相关的
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+venv/
+.venv/
+env/
+*.env
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/ # Jupyter Notebook 检查点文件
+.vscode/ # VS Code 配置 (可选，如果你不想共享)
+
+# Conda 环境相关 (如果你把环境创建在项目内)
+envs/
+.conda/
+
+# 数据集 (通常不放入Git，因为可能太大)
+data/
+*.csv
+*.tsv
+*.json
+*.parquet
+*.feather
+*.pkl
+*.bin
+
+# 模型文件 (通常不放入Git)
+models/
+*.h5
+*.keras
+*.pt
+*.pth
+*.pkl
+*.onnx
+
+# LightGBM 编译相关 (如果你想将 LightGBM 作为子模块处理，或者不希望其编译产物进入顶层 Git)
+LightGBM/build/
+LightGBM/Release/
+LightGBM/debug/
+
+# Kaggle 特定文件
+*.zip
+*.tar.gz
+submission.csv # 提交文件
+output/ # 通常是输出结果目录
+
+# macOS 特定
+.DS_Store
+
+# Windows 特定
+Thumbs.db
+Desktop.ini
+
+# IDE 相关
+.idea/ # PyCharm
+*.iml # IntelliJ
